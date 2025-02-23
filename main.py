@@ -155,7 +155,7 @@ def get_integration_json(request: Request):
             },
             'is_active': True,
             'integration_type': 'interval',
-            'integration_category': 'Developer Productivity',
+            'integration_category': 'Monitoring & Logging',
             'key_features': [
                 'Periodic analysis of recent code commits',
                 'AI-powered code review with improvement suggestions',
