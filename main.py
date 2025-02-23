@@ -157,7 +157,7 @@ def get_integration_json(request: Request):
             "descriptions":{
                 "app_name": "Code Refactor Insight",
                 "app_description": "Code Refactor Insight is a tool that helps you refactor your codebase by providing insights on how to improve your codebase.",
-                "app_url": base_url,
+                "app_url": "https://coderefactorinsight-s3.onrender.com",
                 "app_logo": "https://res.cloudinary.com/drujauolr/image/upload/v1740249649/942a2999-c065-47b3-adb0-3222599294eb_rsoloz.jpg",
                 "background_color": "#f0f0f0"
             },
@@ -172,7 +172,7 @@ def get_integration_json(request: Request):
                 "Seamless integration with Git repositories"
             ],
             "author": "codename",
-            "website": base_url,
+            "website": "https://coderefactorinsight-s3.onrender.com",
             "settings": [
                 {"label": "interval", 
                  "type": "text", 
@@ -180,7 +180,7 @@ def get_integration_json(request: Request):
                  "default": "* * * * *"},
             ],
             "target_url": "",
-            "tick_url": f"{base_url}/tick",
+            "tick_url": "https://coderefactorinsight-s3.onrender.com/tick",
         }
     }
 
