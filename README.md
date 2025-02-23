@@ -40,6 +40,21 @@ Make sure to set the following environment variables in your `.env` file:
 ## How the App Works
 The Code Refactor Insight app is built using FastAPI and integrates with GitHub and SonarCloud to provide developers with insights into their codebase. Here's a detailed explanation of how the app operates:
 
+0. **QUICK TEST**:
+   curl -X POST https://coderefactorinsight-s3.onrender.com/tick \
+     -H "Content-Type: application/json" \
+     -d '{
+           "channel_id": "developers-productivity",
+           "return_url": "https://ping.telex.im/v1/webhooks/0195334e-4ed7-7b87-8312-507db7eba65c",
+           "settings": [
+             {"label": "interval", "type": "text", "required": true, "default": "* * * * *"}
+           ]
+         }'
+
+
+
+
+
 1. **Application Setup**: 
    - The app is initialized using FastAPI, which allows for the creation of RESTful APIs. It loads environment variables from a `.env` file, which contain sensitive information like API tokens.
 
