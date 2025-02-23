@@ -85,10 +85,18 @@ async def fetch_sonar_analysis():
     except Exception as e:
         logger.exception("Unexpected error fetching SonarCloud analysis")
         return {'error': f'Unexpected error fetching SonarCloud analysis: {str(e)}'}
+    
+
+class Setting(BaseModel):
+    label: str
+    type: str
+    required: bool
+    default: str
 
 class MonitorPayload(BaseModel):
     channel_id: str
     return_url: str
+    settings: List[Setting]
 
 @app.post('/tick', status_code=202)
 def handle_tick(payload: MonitorPayload, background_tasks: BackgroundTasks):
@@ -165,7 +173,8 @@ def get_integration_json(request: Request):
             ],
             'author': 'codename',
             'settings': [
-                {"label": "interval", "type": "text", "required": True, "default": "* * * * *"}
+                {"label": "interval", "type": "text", "required": True, "default": "* * * * *"},
+                {"label": "custom_setting", "type": "text", "required": False, "default": ""}
             ],
             'target_url': '',
             'tick_url': f'{base_url}/tick',
