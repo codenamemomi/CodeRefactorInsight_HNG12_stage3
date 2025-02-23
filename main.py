@@ -8,12 +8,28 @@ import os
 import json
 import subprocess
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+origins = [
+    "https://coderefactorinsight-s3.onrender.com"
+    "https://coderefactorinsight-s3.onrender.com/integration.json"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
+
+
 
 load_dotenv()
 
@@ -68,16 +84,12 @@ async def fetch_github_commits(owner: str, repo: str, count: int = 5) -> Union[L
         logger.exception("Unexpected error fetching GitHub commits")
         return {'error': f'Unexpected error fetching GitHub commits: {str(e)}'}
 
-class Setting(BaseModel):
-    label: str
-    type: str
-    required: bool
-    default: str
+
 
 class MonitorPayload(BaseModel):
     channel_id: str
     return_url: str
-    settings: List[Setting]
+    settings: List
 
 @app.post('/tick', status_code=202)
 def handle_tick(payload: MonitorPayload, background_tasks: BackgroundTasks):
