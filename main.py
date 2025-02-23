@@ -70,7 +70,7 @@ async def fetch_with_retries(url, retries=3):
 
 
 
-async def fetch_github_commits(owner: str, repo: str, count: int = 5) -> Union[List[dict], dict]:
+async def fetch_github_commits(owner: str, repo: str, count: int = 3) -> Union[List[dict], dict]:
     if not GITHUB_TOKEN:
         logger.error("GITHUB_TOKEN is not set")
         return {'error': 'GITHUB_TOKEN not set'}
