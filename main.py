@@ -11,15 +11,12 @@ from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-origins = [
-    "*"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,8 +25,6 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
 )
-
-
 
 load_dotenv()
 
@@ -55,20 +50,22 @@ async def log_to_telex(report: dict):
     except Exception as e:
         logger.error(f"Failed to log report to Telex: {e}")
 
-
-async def fetch_with_retries(url, retries=3):
-    async with httpx.AsyncClient() as client:  # Create client inside the function
+async def fetch_with_retries(url, headers=None, retries=3, timeout=30):
+    """Fetch data with retries and exponential backoff."""
+    async with httpx.AsyncClient() as client:
         for attempt in range(retries):
             try:
-                response = await client.get(url)
+                response = await client.get(url, headers=headers, timeout=timeout)
+                response.raise_for_status()
                 return response
-            except httpx.ConnectTimeout as e:
+            except (httpx.ConnectTimeout, httpx.NetworkError) as e:
                 if attempt < retries - 1:
-                    await asyncio.sleep(2 ** attempt)  # Exponential backoff
+                    wait_time = 2 ** attempt  # Exponential backoff
+                    logger.warning(f"Retrying in {wait_time} seconds... (Attempt {attempt + 1}/{retries})")
+                    await asyncio.sleep(wait_time)
                 else:
+                    logger.error(f"Failed after {retries} attempts: {e}")
                     raise e
-
-
 
 async def fetch_github_commits(owner: str, repo: str, count: int = 3) -> Union[List[dict], dict]:
     if not GITHUB_TOKEN:
@@ -76,29 +73,27 @@ async def fetch_github_commits(owner: str, repo: str, count: int = 3) -> Union[L
         return {'error': 'GITHUB_TOKEN not set'}
     
     headers = {'Authorization': f'token {GITHUB_TOKEN}'}
+    url = GITHUB_API_URL.format(owner=owner, repo=repo)
     
     try:
-        async with httpx.AsyncClient() as client:
-            logger.info(f"Fetching latest {count} commits from {owner}/{repo}")
-            response = await client.get(GITHUB_API_URL.format(owner=owner, repo=repo), headers=headers, timeout=30)
-            response.raise_for_status()
-            commits = response.json()
-            return [
-                {
-                    'sha': commit['sha'],
-                    'message': commit['commit']['message'],
-                    'author': commit['commit']['author']['name'],
-                    'date': commit['commit']['author']['date']
-                }
-                for commit in commits[:count]
-            ]
+        logger.info(f"Fetching latest {count} commits from {owner}/{repo}")
+        response = await fetch_with_retries(url, headers=headers, timeout=60)  # Increased timeout
+        commits = response.json()
+        return [
+            {
+                'sha': commit['sha'],
+                'message': commit['commit']['message'],
+                'author': commit['commit']['author']['name'],
+                'date': commit['commit']['author']['date']
+            }
+            for commit in commits[:count]
+        ]
     except httpx.HTTPStatusError as e:
         logger.error(f"GitHub API error: {e.response.status_code} {e.response.text}")
         return {'error': f'GitHub API error: {e.response.status_code} {e.response.text}'}
     except Exception as e:
         logger.exception("Unexpected error fetching GitHub commits")
         return {'error': f'Unexpected error fetching GitHub commits: {str(e)}'}
-
 
 class Setting(BaseModel):
     label: str
@@ -162,7 +157,7 @@ async def process_task(owner: str, repo: str, return_url: str):
 
 @app.get("/integration.json")
 def get_integration_json(request: Request):
-    base_url  = str(request.base_url).rstrip("/")
+    base_url = str(request.base_url).rstrip("/")
     
     return {
         "data": {
@@ -170,7 +165,7 @@ def get_integration_json(request: Request):
                 "created_at": "2025-2-22",
                 "updated_at": "2025-2-22"
             },
-            "descriptions":{
+            "descriptions": {
                 "app_name": "Code Refactor Insight",
                 "app_description": "Code Refactor Insight is a tool that helps you refactor your codebase by providing insights on how to improve your codebase.",
                 "app_url": "https://coderefactorinsight-s3.onrender.com",
