@@ -64,7 +64,7 @@ async def fetch_github_commits(owner: str, repo: str, count: int = 5) -> Union[L
     try:
         async with httpx.AsyncClient() as client:
             logger.info(f"Fetching latest {count} commits from {owner}/{repo}")
-            response = await client.get(GITHUB_API_URL.format(owner=owner, repo=repo), headers=headers)
+            response = await client.get(GITHUB_API_URL.format(owner=owner, repo=repo), headers=headers, timeout=30)
             response.raise_for_status()
             commits = response.json()
             return [
