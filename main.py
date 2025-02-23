@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 origins = [
-    "https://coderefactorinsight-s3.onrender.com"
-    "https://coderefactorinsight-s3.onrender.com/integration.json"
+    "*"
 ]
 
 app.add_middleware(
@@ -34,7 +33,7 @@ app.add_middleware(
 load_dotenv()
 
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
-TELEX_URL = 'https://ping.telex.im/v1/webhooks/01952f15-fb05-7941-b053-82c441dac57b'
+TELEX_URL = 'https://ping.telex.im/v1/webhooks/0195334e-4ed7-7b87-8312-507db7eba65c'
 GITHUB_API_URL = 'https://api.github.com/repos/{owner}/{repo}/commits'
 
 def run_pylint(target_dir: str):
@@ -85,11 +84,16 @@ async def fetch_github_commits(owner: str, repo: str, count: int = 5) -> Union[L
         return {'error': f'Unexpected error fetching GitHub commits: {str(e)}'}
 
 
+class Setting(BaseModel):
+    label: str
+    type: str
+    required: bool
+    default: str
 
 class MonitorPayload(BaseModel):
     channel_id: str
     return_url: str
-    settings: List
+    settings: List[Setting]
 
 @app.post('/tick', status_code=202)
 def handle_tick(payload: MonitorPayload, background_tasks: BackgroundTasks):
@@ -144,90 +148,41 @@ async def process_task(owner: str, repo: str, return_url: str):
 def get_integration_json(request: Request):
     base_url  = str(request.base_url).rstrip("/")
     
-    return{
-            "data": {
-                "date": {
+    return {
+        "data": {
+            "date": {
                 "created_at": "2025-2-22",
                 "updated_at": "2025-2-22"
-                },
-                "descriptions": {
+            },
+            "descriptions":{
                 "app_name": "Code Refactor Insight",
                 "app_description": "Code Refactor Insight is a tool that helps you refactor your codebase by providing insights on how to improve your codebase.",
-                "app_url": {base_url},
+                "app_url": base_url,
                 "app_logo": "https://res.cloudinary.com/drujauolr/image/upload/v1740249649/942a2999-c065-47b3-adb0-3222599294eb_rsoloz.jpg",
                 "background_color": "#f0f0f0"
-                },
-                "is_active": False,
-                "integration_type": "interval",
-                "integration_category": "Monitoring & Logging",
-                "output": [
-                {
-                    "label": "output_channel_1",
-                    "value": True
-                },
-                {
-                    "label": "output_channel_2",
-                    "value": False
-                }
-                ],
-                "key_features": [
+            },
+            "is_active": True,
+            "integration_type": "interval",
+            "integration_category": "Monitoring & Logging",
+            "key_features": [
                 "Periodic analysis of recent code commits",
                 "AI-powered code review with improvement suggestions",
                 "Performance optimization insights",
                 "Best practices recommendations for readability and maintainability",
                 "Seamless integration with Git repositories"
-                ],
-                "permissions": {
-                "monitoring_user": {
-                    "always_online": True,
-                    "display_name": "Performance Monitor"
-                }
-                },
-                "settings": [
-                {
-                    "label": "interval",
-                    "type": "text",
-                    "required": True,
-                    "default": "* * * * *"
-                },
-                {
-                    "label": "Key",
-                    "type": "text",
-                    "required": True,
-                    "default": "1234567890"
-                },
-                {
-                    "label": "Do you want to continue",
-                    "type": "checkbox",
-                    "required": True,
-                    "default": "Yes"
-                },
-                {
-                    "label": "Provide Speed",
-                    "type": "number",
-                    "required": True,
-                    "default": "1000"
-                },
-                {
-                    "label": "Sensitivity Level",
-                    "type": "dropdown",
-                    "required": True,
-                    "default": "Low",
-                    "options": ["High", "Low"]
-                },
-                {
-                    "label": "Alert Admin",
-                    "type": "multi-checkbox",
-                    "required": True,
-                    "default": "Super-Admin",
-                    "options": ["Super-Admin", "Admin", "Manager", "Developer"]
-                }
-                ],
-                "tick_url": f"{base_url}/tick",
-                "target_url": f"{base_url}/data"
-            }
-            }
-
+            ],
+            "author": "codename",
+            "website": base_url,
+            "settings": [
+                {"label": "interval", 
+                 "type": "text", 
+                 "required": True, 
+                 "default": "* * * * *"},
+            ],
+            "target_url": "",
+            "tick_url": f"{base_url}/tick",
+        }
+    }
 
 if __name__ == "__main__":
     import uvicorn
