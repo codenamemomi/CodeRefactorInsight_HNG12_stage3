@@ -33,7 +33,7 @@ app.add_middleware(
 load_dotenv()
 
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
-TELEX_URL = 'https://ping.telex.im/v1/webhooks/0195334e-4ed7-7b87-8312-507db7eba65c'
+TELEX_URL = 'https://ping.telex.im/v1/webhooks/0195339f-8091-7687-936f-6dc7e4efdfd4'
 GITHUB_API_URL = 'https://api.github.com/repos/{owner}/{repo}/commits'
 
 def run_pylint(target_dir: str):
