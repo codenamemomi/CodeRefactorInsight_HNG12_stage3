@@ -9,6 +9,7 @@ import json
 import subprocess
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+import asyncio
 
 
 # Configure logging
@@ -53,6 +54,21 @@ async def log_to_telex(report: dict):
             logger.info("Successfully logged report to Telex")
     except Exception as e:
         logger.error(f"Failed to log report to Telex: {e}")
+
+
+async def fetch_with_retries(url, retries=3):
+    async with httpx.AsyncClient() as client:  # Create client inside the function
+        for attempt in range(retries):
+            try:
+                response = await client.get(url)
+                return response
+            except httpx.ConnectTimeout as e:
+                if attempt < retries - 1:
+                    await asyncio.sleep(2 ** attempt)  # Exponential backoff
+                else:
+                    raise e
+
+
 
 async def fetch_github_commits(owner: str, repo: str, count: int = 5) -> Union[List[dict], dict]:
     if not GITHUB_TOKEN:
