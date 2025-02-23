@@ -1,12 +1,12 @@
 import logging
-import os
-import json
-import subprocess
 from fastapi import FastAPI, Request, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Union
 import httpx
+import os
+import json
+import subprocess
 from dotenv import load_dotenv
 
 # Configure logging
@@ -20,6 +20,14 @@ load_dotenv()
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 TELEX_URL = 'https://ping.telex.im/v1/webhooks/01952f15-fb05-7941-b053-82c441dac57b'
 GITHUB_API_URL = 'https://api.github.com/repos/{owner}/{repo}/commits'
+
+def run_pylint(target_dir: str):
+    """Run Pylint on the specified directory and return the output."""
+    try:
+        result = subprocess.run(["pylint", target_dir], capture_output=True, text=True, check=True)
+        return result.stdout
+    except subprocess.CalledProcessError as e:
+        return e.output
 
 async def log_to_telex(report: dict):
     """Send report logs to Telex."""
@@ -60,18 +68,6 @@ async def fetch_github_commits(owner: str, repo: str, count: int = 5) -> Union[L
         logger.exception("Unexpected error fetching GitHub commits")
         return {'error': f'Unexpected error fetching GitHub commits: {str(e)}'}
 
-def run_pylint_on_code(repo_path: str) -> str:
-    """Run Pylint on the repository codebase and return the output."""
-    try:
-        logger.info("Running Pylint analysis...")
-        result = subprocess.run(
-            ['pylint', repo_path], capture_output=True, text=True
-        )
-        return result.stdout
-    except Exception as e:
-        logger.error(f"Error running Pylint: {e}")
-        return "Error running Pylint."
-
 class Setting(BaseModel):
     label: str
     type: str
@@ -86,7 +82,7 @@ class MonitorPayload(BaseModel):
 @app.post('/tick', status_code=202)
 def handle_tick(payload: MonitorPayload, background_tasks: BackgroundTasks):
     owner = 'codenamemomi'
-    repo = 'CodeRefactorInsight_HNG12_stage3'
+    repo = 'HNG12_fun_c0ding_tasks_stage3'
     
     logger.info("Received tick event, processing in background")
     background_tasks.add_task(process_task, owner, repo, payload.return_url)
@@ -104,17 +100,21 @@ async def process_task(owner: str, repo: str, return_url: str):
         for commit in commits
     ]
     
-    pylint_results = run_pylint_on_code(repo)
+    # Run Pylint Analysis
+    target_dir = f"/tmp/{repo}"
+    if not os.path.exists(target_dir):
+        subprocess.run(["git", "clone", f"https://github.com/{owner}/{repo}.git", target_dir], check=True)
+    pylint_analysis = run_pylint(target_dir)
     
     report_data = {
         'commits': insights,
-        'pylint_analysis': pylint_results,
+        'pylint_analysis': pylint_analysis,
         'summary': "Periodic report with key insights from GitHub and Pylint analysis"
     }
     await log_to_telex(report_data)
     
     data = {
-        'message': "🚀 Recent Code Changes:\n\n" + "\n".join(insights) + f"\n\n🔍 Pylint Analysis:\n{pylint_results}",
+        'message': f" {owner}\n {repo}\n Recent Code Changes:\n\n" + "\n".join(insights) + f"\n\n🔍 Pylint Analysis:\n{pylint_analysis}",
         'username': 'codename Bot',
         'event_name': 'code_refactor_insight',
         'status': 'success'
@@ -157,7 +157,7 @@ def get_integration_json(request: Request):
             ],
             'author': 'codename',
             'settings': [
-                {"label": "interval", "type": "text", "required": True, "default": "* * * * *"},
+                {"label": "interval", "type": "text", "required": True, "default": "0 * * * *"},
                 {"label": "custom_setting", "type": "text", "required": False, "default": ""}
             ],
             'target_url': '',
