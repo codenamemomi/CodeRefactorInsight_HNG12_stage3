@@ -130,40 +130,40 @@ async def process_task(owner: str, repo: str, return_url: str):
 
 @app.get("/integration.json")
 def get_integration_json(request: Request):
-    base_url  = str(request.base_url).rstrip('/')
+    base_url  = str(request.base_url).rstrip("/")
     
     return {
-        'data': {
-            'date': {
-                'created_at': '2025-2-22',
-                'updated_at': '2025-2-22'
+        "data": {
+            "date": {
+                "created_at": "2025-2-22",
+                "updated_at": "2025-2-22"
             },
-            'descriptions':{
-                'app_name': 'Code Refactor Insight',
-                'app_description': 'Code Refactor Insight is a tool that helps you refactor your codebase by providing insights on how to improve your codebase.',
-                'app_url': base_url,
-                'app_logo': 'https://res.cloudinary.com/drujauolr/image/upload/v1740249649/942a2999-c065-47b3-adb0-3222599294eb_rsoloz.jpg',
-                'background_color': '#f0f0f0'
+            "descriptions":{
+                "app_name": "Code Refactor Insight",
+                "app_description": "Code Refactor Insight is a tool that helps you refactor your codebase by providing insights on how to improve your codebase.",
+                "app_url": base_url,
+                "app_logo": "https://res.cloudinary.com/drujauolr/image/upload/v1740249649/942a2999-c065-47b3-adb0-3222599294eb_rsoloz.jpg",
+                "background_color": "#f0f0f0"
             },
-            'is_active': True,
-            'integration_type': 'interval',
-            'integration_category': 'Monitoring & Logging',
-            'key_features': [
-                'Periodic analysis of recent code commits',
-                'AI-powered code review with improvement suggestions',
-                'Performance optimization insights',
-                'Best practices recommendations for readability and maintainability',
-                'Seamless integration with Git repositories'
+            "is_active": True,
+            "integration_type": "interval",
+            "integration_category": "Monitoring & Logging",
+            "key_features": [
+                "Periodic analysis of recent code commits",
+                "AI-powered code review with improvement suggestions",
+                "Performance optimization insights",
+                "Best practices recommendations for readability and maintainability",
+                "Seamless integration with Git repositories"
             ],
-            'author': 'codename',
-            'settings': [
+            "author": "codename",
+            "settings": [
                 {"label": "interval", "type": "text", "required": True, "default": "* * * * *"},
             ],
-            'target_url': '',
-            'tick_url': f'{base_url}/tick',
+            "target_url": "",
+            "tick_url": f"{base_url}/tick",
         }
     }
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
