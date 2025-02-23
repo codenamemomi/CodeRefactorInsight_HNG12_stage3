@@ -158,7 +158,7 @@ def get_integration_json(request: Request):
             'author': 'codename',
             'settings': [
                 {"label": "interval", "type": "text", "required": True, "default": "0 * * * *"},
-                {"label": "custom_setting", "type": "text", "required": False, "default": ""}
+                {"label": "custom_setting", "type": "text", "required": True, "default": ""}
             ],
             'target_url': '',
             'tick_url': f'{base_url}/tick',
