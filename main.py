@@ -93,7 +93,7 @@ class MonitorPayload(BaseModel):
 @app.post('/tick', status_code=202)
 def handle_tick(payload: MonitorPayload, background_tasks: BackgroundTasks):
     owner = 'codenamemomi'
-    repo = 'HNG12_fun_c0ding_tasks_stage3'
+    repo = 'CodeRefactorInsight_HNG12_stage3'
     
     logger.info("Received tick event, processing in background")
     background_tasks.add_task(process_task, owner, repo, payload.return_url)
