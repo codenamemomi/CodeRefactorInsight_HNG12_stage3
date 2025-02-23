@@ -144,37 +144,90 @@ async def process_task(owner: str, repo: str, return_url: str):
 def get_integration_json(request: Request):
     base_url  = str(request.base_url).rstrip("/")
     
-    return {
-        "data": {
-            "date": {
+    return{
+            "data": {
+                "date": {
                 "created_at": "2025-2-22",
                 "updated_at": "2025-2-22"
-            },
-            "descriptions":{
+                },
+                "descriptions": {
                 "app_name": "Code Refactor Insight",
                 "app_description": "Code Refactor Insight is a tool that helps you refactor your codebase by providing insights on how to improve your codebase.",
-                "app_url": base_url,
+                "app_url": "{base_url}",
                 "app_logo": "https://res.cloudinary.com/drujauolr/image/upload/v1740249649/942a2999-c065-47b3-adb0-3222599294eb_rsoloz.jpg",
                 "background_color": "#f0f0f0"
-            },
-            "is_active": True,
-            "integration_type": "interval",
-            "integration_category": "Monitoring & Logging",
-            "key_features": [
+                },
+                "is_active": False,
+                "integration_type": "interval",
+                "integration_category": "Monitoring & Logging",
+                "output": [
+                {
+                    "label": "output_channel_1",
+                    "value": True
+                },
+                {
+                    "label": "output_channel_2",
+                    "value": False
+                }
+                ],
+                "key_features": [
                 "Periodic analysis of recent code commits",
                 "AI-powered code review with improvement suggestions",
                 "Performance optimization insights",
                 "Best practices recommendations for readability and maintainability",
                 "Seamless integration with Git repositories"
-            ],
-            "author": "codename",
-            "settings": [
-                {"label": "interval", "type": "text", "required": True, "default": "* * * * *"},
-            ],
-            "target_url": "",
-            "tick_url": f"{base_url}/tick",
-        }
-    }
+                ],
+                "permissions": {
+                "monitoring_user": {
+                    "always_online": True,
+                    "display_name": "Performance Monitor"
+                }
+                },
+                "settings": [
+                {
+                    "label": "interval",
+                    "type": "text",
+                    "required": True,
+                    "default": "* * * * *"
+                },
+                {
+                    "label": "Key",
+                    "type": "text",
+                    "required": True,
+                    "default": "1234567890"
+                },
+                {
+                    "label": "Do you want to continue",
+                    "type": "checkbox",
+                    "required": True,
+                    "default": "Yes"
+                },
+                {
+                    "label": "Provide Speed",
+                    "type": "number",
+                    "required": True,
+                    "default": "1000"
+                },
+                {
+                    "label": "Sensitivity Level",
+                    "type": "dropdown",
+                    "required": True,
+                    "default": "Low",
+                    "options": ["High", "Low"]
+                },
+                {
+                    "label": "Alert Admin",
+                    "type": "multi-checkbox",
+                    "required": True,
+                    "default": "Super-Admin",
+                    "options": ["Super-Admin", "Admin", "Manager", "Developer"]
+                }
+                ],
+                "tick_url": "{base_url}/tick",
+                "target_url": "{base_url}/data"
+            }
+            }
+
 
 if __name__ == "__main__":
     import uvicorn
