@@ -146,7 +146,7 @@ def get_integration_json(request: Request):
                 'created_at': '2025-2-22',
                 'updated_at': '2025-2-22'
             },
-            'description':{
+            'descriptions':{
                 'app_name': 'Code Refactor Insight',
                 'app_description': 'Code Refactor Insight is a tool that helps you refactor your codebase by providing insights on how to improve your codebase.',
                 'app_url': base_url,
