@@ -148,6 +148,12 @@ def get_integration_json(request: Request):
             'is_active': True,
             'integration_type': 'interval',
             'integration_category': 'Monitoring & Logging',
+            "output": [
+            {
+                "label": "developers-productivity",
+                "value": True
+            }
+            ],
             'key_features': [
                 'Periodic analysis of recent code commits',
                 'AI-powered code review with improvement suggestions',
@@ -158,7 +164,6 @@ def get_integration_json(request: Request):
             'author': 'codename',
             'settings': [
                 {"label": "interval", "type": "text", "required": True, "default": "0 * * * *"},
-                {"label": "custom_setting", "type": "text", "required": True, "default": ""}
             ],
             'target_url': '',
             'tick_url': f'{base_url}/tick',
