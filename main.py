@@ -108,10 +108,15 @@ class MonitorPayload(BaseModel):
 
 @app.post('/tick', status_code=202)
 def handle_tick(payload: MonitorPayload, background_tasks: BackgroundTasks):
-    owner = 'codenamemomi'
-    repo = 'CodeRefactorInsight_HNG12_stage3'
-    
-    logger.info("Received tick event, processing in background")
+    settings_dict = {setting.label: setting.default for setting in payload.settings}
+
+    owner = settings_dict.get('Github_username', '').strip()
+    repo = settings_dict.get('Github_repo', '').strip()
+
+    if not owner or not repo:
+        raise HTTPException(status_code=400, detail='Github username and repository must be VALID')
+
+    logger.info(f'received tick event for {owner}/{repo}, processing in the background')
     background_tasks.add_task(process_task, owner, repo, payload.return_url)
     return {'status': 'accepted'}
 
@@ -189,6 +194,14 @@ def get_integration_json(request: Request):
                  "type": "text", 
                  "required": True, 
                  "default": "* * * * *"},
+                 {"label": "Github_username", 
+                 "type": "text", 
+                 "required": True, 
+                 "default": ""},
+                 {"label": "Github_repo", 
+                 "type": "text", 
+                 "required": True, 
+                 "default": ""}
             ],
             "target_url": "",
             "tick_url": "https://coderefactorinsight-s3.onrender.com/tick",
